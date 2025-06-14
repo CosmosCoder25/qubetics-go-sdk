@@ -1,0 +1,20 @@
+[Interface]
+Address = {{ join .Addrs "," }}
+DNS = {{ join .DNSAddrs "," }}
+ListenPort = {{ .Port }}
+MTU = {{ .MTU }}
+PrivateKey = {{ .PrivateKey }}
+
+{{- range $rule := .PostUp }}
+PostUp = {{ $rule }}
+{{- end }}
+
+{{- range $rule := .PreDown }}
+PreDown = {{ $rule }}
+{{- end }}
+
+[Peer]
+AllowedIPs = {{ join .Peer.AllowAddrs "," }}
+Endpoint = {{ .Peer.Endpoint }}
+PersistentKeepalive = {{ .Peer.PersistentKeepalive }}
+PublicKey = {{ .Peer.PublicKey }}
