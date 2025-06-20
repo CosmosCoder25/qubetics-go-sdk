@@ -160,6 +160,8 @@ require (
 	sigs.k8s.io/yaml v1.4.0 // indirect
 )
 
-replace github.com/sentinel-official/hub/v12 => /data/project2025/qubetics_dvpn
+replace github.com/sentinel-official/hub/v12 => ../qubetics_dvpn
 
-replace github.com/qubetics/qubetics-blockchain/v2 => /data/project2025/qubetics_dvpn
+replace github.com/qubetics/qubetics-blockchain/v2 => ../qubetics_dvpn
+
+replace github.com/cosmos/cosmos-sdk => github.com/evmos/cosmos-sdk v0.47.12-evmos.2
