@@ -9,6 +9,7 @@ import (
 	cosmossdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/go-bip39"
+	qubeticshd "github.com/qubetics/qubetics-blockchain/v2/crypto/hd"
 )
 
 // KeyForAddr retrieves the key record associated with the given account address from the keyring.
@@ -45,11 +46,10 @@ func (c *Client) CreateKey(name, mnemonic, bip39Pass, hdPath string) (s string, 
 	}
 
 	// Create a new key in the keyring.
-	key, err := c.keyring.NewAccount(name, mnemonic, bip39Pass, hdPath, hd.Secp256k1)
+	key, err := c.keyring.NewAccount(name, mnemonic, bip39Pass, hdPath, qubeticshd.EthSecp256k1)
 	if err != nil {
 		return "", nil, fmt.Errorf("failed to create new account: %w", err)
 	}
-
 	return mnemonic, key, nil
 }
 

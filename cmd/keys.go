@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/go-bip39"
 	"github.com/spf13/cobra"
@@ -57,7 +58,7 @@ func NewKeysCmd(cfg *config.KeyringConfig) *cobra.Command {
 // keysAddCmd creates a new key with the specified name, mnemonic, and bip39 passphrase.
 func keysAddCmd(c *core.Client) *cobra.Command {
 	// Declare variables for flags
-	hdPath := hd.CreateHDPath(118, 0, 0).String()
+	hdPath := hd.CreateHDPath(60, 0, 0).String()
 	outputFormat := "text"
 
 	cmd := &cobra.Command{
