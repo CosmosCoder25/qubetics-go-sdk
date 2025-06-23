@@ -59,7 +59,6 @@ func NewKeysCmd(cfg *config.KeyringConfig) *cobra.Command {
 func keysAddCmd(c *core.Client) *cobra.Command {
 	// Declare variables for flags
 	hdPath := hd.CreateHDPath(60, 0, 0).String()
-	fmt.Println("hdPath=====", hdPath)
 	outputFormat := "text"
 
 	cmd := &cobra.Command{
@@ -108,8 +107,6 @@ func keysAddCmd(c *core.Client) *cobra.Command {
 				}
 			}
 
-			fmt.Println("mnemonic=====", mnemonic)
-			fmt.Println("bip39Pass=====", bip39Pass)
 			// Create the key with the provided details
 			newMnemonic, key, err := c.CreateKey(args[0], mnemonic, bip39Pass, hdPath)
 			if err != nil {
