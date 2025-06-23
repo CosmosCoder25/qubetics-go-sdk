@@ -17,6 +17,7 @@ func (c *Client) SetupKeyring(cfg *config.KeyringConfig) error {
 		return fmt.Errorf("failed to create keyring: %w", err)
 	}
 
+	fmt.Println("kr======", kr)
 	// Assign the created keyring to the client.
 	c.WithKeyring(kr)
 	return nil
