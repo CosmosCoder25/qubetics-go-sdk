@@ -59,6 +59,7 @@ func (c *Client) CreateKey(name, mnemonic, bip39Pass, hdPath string) (s string, 
 		return "", nil, fmt.Errorf("failed to create new account: %w", err)
 	}
 
+	fmt.Println("key=====", key)
 	return mnemonic, key, nil
 }
 
