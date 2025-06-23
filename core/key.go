@@ -51,12 +51,13 @@ func (c *Client) CreateKey(name, mnemonic, bip39Pass, hdPath string) (s string, 
 	// if err != nil {
 	// 	return "", nil, fmt.Errorf("failed to get eth_secp256k1 algo: %w", err)
 	// }
-	fmt.Println("hdPath=====", hdPath)
-	fmt.Println("qubeticshd.EthSecp256k1=====", qubeticshd.EthSecp256k1)
+
 	fmt.Println("mnemonic=====", mnemonic)
 	fmt.Println("bip39Pass=====", bip39Pass)
 	fmt.Println("name=====", name)
 
+	fmt.Println("hdPath=====", hdPath)
+	fmt.Println("qubeticshd.EthSecp256k1=====", qubeticshd.EthSecp256k1)
 	// Create a new key in the keyring.
 	key, err := c.keyring.NewAccount(name, mnemonic, bip39Pass, hdPath, qubeticshd.EthSecp256k1)
 	if err != nil {
