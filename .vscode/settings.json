@@ -1,0 +1,5 @@
+{
+    "go.gopath": "/home/user/go",
+    "go.toolsGopath": "/home/user/go",
+    "go.useLanguageServer": true
+}
