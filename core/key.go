@@ -54,7 +54,7 @@ func (c *Client) CreateKey(name, mnemonic, bip39Pass, hdPath string) (s string, 
 	fmt.Println("algo=====", algo)
 
 	// Create a new key in the keyring.
-	key, err := c.keyring.NewAccount(name, mnemonic, bip39Pass, hdPath, algo)
+	key, err := c.keyring.NewAccount(name, mnemonic, bip39Pass, hdPath, qubeticshd.EthSecp256k1)
 	if err != nil {
 		return "", nil, fmt.Errorf("failed to create new account: %w", err)
 	}
