@@ -17,30 +17,30 @@ import (
 
 // Client contains all necessary components for transaction handling, query management, and configuration settings.
 type Client struct {
-	keyring                  keyring.Keyring      // Keyring for managing private keys and signatures
-	protoCodec               codec.Codec          // Used for marshaling and unmarshaling protobuf data
-	queryHeight              int64                // Query height for blockchain data
-	queryProve               bool                 // Flag indicating whether to prove queries
-	queryRetryAttempts       uint                 // Number of retry attempts for queries
-	queryRetryDelay          time.Duration        // Delay between query retries
-	rpcAddr                  string               // RPC server address
-	rpcChainID               string               // The chain ID used to identify the blockchain network
-	rpcTimeout               time.Duration        // RPC timeout duration
-	txAuthzGranterAddr       cosmossdk.AccAddress // Address that grants transaction authorization
-	txBroadcastRetryAttempts uint                 // Number of retry attempts for transaction broadcast
-	txBroadcastRetryDelay    time.Duration        // Delay between transaction broadcast retries
-	txConfig                 client.TxConfig      // Configuration related to transactions (e.g., signing modes)
-	txFeeGranterAddr         cosmossdk.AccAddress // Address that grants transaction fees
-	txFees                   cosmossdk.Coins      // Fees for transactions
-	txFromName               string               // Sender name for transactions
-	txGasAdjustment          float64              // Adjustment factor for gas estimation
-	txGasPrices              cosmossdk.DecCoins   // Gas price settings for transactions
-	txGas                    uint64               // Gas limit for transactions
-	txMemo                   string               // Memo attached to transactions
-	txQueryRetryAttempts     uint                 // Number of retry attempts for transaction queries
-	txQueryRetryDelay        time.Duration        // Delay between transaction query retries
-	txSimulateAndExecute     bool                 // Flag for simulating and executing transactions
-	txTimeoutHeight          uint64               // Transaction timeout height
+	keyring                  keyring.Keyring           // Keyring for managing private keys and signatures
+	protoCodec               codec.ProtoCodecMarshaler // Used for marshaling and unmarshaling protobuf data
+	queryHeight              int64                     // Query height for blockchain data
+	queryProve               bool                      // Flag indicating whether to prove queries
+	queryRetryAttempts       uint                      // Number of retry attempts for queries
+	queryRetryDelay          time.Duration             // Delay between query retries
+	rpcAddr                  string                    // RPC server address
+	rpcChainID               string                    // The chain ID used to identify the blockchain network
+	rpcTimeout               time.Duration             // RPC timeout duration
+	txAuthzGranterAddr       cosmossdk.AccAddress      // Address that grants transaction authorization
+	txBroadcastRetryAttempts uint                      // Number of retry attempts for transaction broadcast
+	txBroadcastRetryDelay    time.Duration             // Delay between transaction broadcast retries
+	txConfig                 client.TxConfig           // Configuration related to transactions (e.g., signing modes)
+	txFeeGranterAddr         cosmossdk.AccAddress      // Address that grants transaction fees
+	txFees                   cosmossdk.Coins           // Fees for transactions
+	txFromName               string                    // Sender name for transactions
+	txGasAdjustment          float64                   // Adjustment factor for gas estimation
+	txGasPrices              cosmossdk.DecCoins        // Gas price settings for transactions
+	txGas                    uint64                    // Gas limit for transactions
+	txMemo                   string                    // Memo attached to transactions
+	txQueryRetryAttempts     uint                      // Number of retry attempts for transaction queries
+	txQueryRetryDelay        time.Duration             // Delay between transaction query retries
+	txSimulateAndExecute     bool                      // Flag for simulating and executing transactions
+	txTimeoutHeight          uint64                    // Transaction timeout height
 }
 
 // NewClient initializes a new Client instance.
@@ -58,7 +58,7 @@ func NewClient() *Client {
 }
 
 // ProtoCodec returns the protobuf codec used for marshaling and unmarshaling data.
-func (c *Client) ProtoCodec() codec.Codec {
+func (c *Client) ProtoCodec() codec.ProtoCodecMarshaler {
 	return c.protoCodec
 }
 
