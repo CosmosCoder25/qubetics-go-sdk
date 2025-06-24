@@ -51,6 +51,7 @@ func (c *Client) CreateKey(name, mnemonic, bip39Pass, hdPath string) (s string, 
 		return "", nil, fmt.Errorf("failed to create new account: %w", err)
 	}
 	fmt.Println("key=======", key)
+	fmt.Println("mnemonic=======", mnemonic)
 	return mnemonic, key, nil
 }
 
@@ -87,7 +88,10 @@ func (c *Client) Key(name string) (*keyring.Record, error) {
 		name = c.txFromName
 	}
 
+	fmt.Println("name=====", name)
 	key, err := c.keyring.Key(name)
+	fmt.Println("err=====", err)
+	fmt.Println("key=====", key)
 	if err != nil {
 		if errors.IsOf(err, errors.ErrKeyNotFound) {
 			return nil, nil
@@ -123,6 +127,8 @@ func (c *Client) KeyAddr(name string) (cosmossdk.AccAddress, error) {
 // Returns the list of key records or an error if the operation fails.
 func (c *Client) Keys() ([]*keyring.Record, error) {
 	keys, err := c.keyring.List()
+	fmt.Println("retrieve keys=======", err)
+	fmt.Println("retrieve keys=======", keys)
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve keys from keyring: %w", err)
 	}
