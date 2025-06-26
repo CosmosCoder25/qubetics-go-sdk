@@ -169,8 +169,8 @@ require (
 	sigs.k8s.io/yaml v1.4.0 // indirect
 )
 
-replace github.com/sentinel-official/hub/v12 => ../../qubetics-chain
-
-replace github.com/qubetics/qubetics-blockchain/v2 => ../../qubetics-chain
-
-replace github.com/cosmos/cosmos-sdk => github.com/Qubetics/cosmos-sdk v1.0.0-qubetics
+replace (
+	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
+	github.com/cosmos/cosmos-sdk => github.com/Qubetics/cosmos-sdk v1.0.0-qubetics
+	github.com/qubetics/qubetics-blockchain/v2 => ../../qubetics-chain
+)
