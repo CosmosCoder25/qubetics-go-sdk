@@ -59,6 +59,7 @@ func NewKeysCmd(cfg *config.KeyringConfig) *cobra.Command {
 func keysAddCmd(c *core.Client) *cobra.Command {
 	// Declare variables for flags
 	hdPath := hd.CreateHDPath(60, 0, 0).String()
+	// hdPath := hd.CreateHDPath(118, 0, 0).String()
 	outputFormat := "text"
 
 	cmd := &cobra.Command{
