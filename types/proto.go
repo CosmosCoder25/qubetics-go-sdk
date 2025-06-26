@@ -11,6 +11,8 @@ import (
 	bank "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	"github.com/qubetics/qubetics-blockchain/v2/crypto/ethsecp256k1"
+
+	qubeticstypes "github.com/qubetics/qubetics-blockchain/v2/types"
 	v1 "github.com/qubetics/qubetics-blockchain/v2/x/vpn/types/v1"
 )
 
@@ -19,9 +21,12 @@ func NewInterfaceRegistry() codectypes.InterfaceRegistry {
 	// Create a new InterfaceRegistry instance.
 	registry := codectypes.NewInterfaceRegistry()
 
-	// Register ethernet secp256k1 keys
+	// Register ethermint secp256k1 keys
 	registry.RegisterImplementations((*cryptotypes.PubKey)(nil), &ethsecp256k1.PubKey{})
 	registry.RegisterImplementations((*cryptotypes.PrivKey)(nil), &ethsecp256k1.PrivKey{})
+
+	// Register ethermint account
+	registry.RegisterImplementations((*auth.AccountI)(nil), &qubeticstypes.EthAccount{})
 
 	// Register Cosmos SDK module interfaces.
 	std.RegisterInterfaces(registry)
