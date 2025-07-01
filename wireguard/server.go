@@ -252,53 +252,77 @@ func (s *Server) PeerCount() int {
 
 // PeerStatistics retrieves statistics for each peer connected to the WireGuard server.
 func (s *Server) PeerStatistics(ctx context.Context) (items []*types.PeerStatistic, err error) {
-	// Retrieves the interface name.
+	// Get the interface name
 	iface, err := s.interfaceName()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get interface name: %w", err)
 	}
 
-	// Executes the 'wg show' command to get transfer statistics.
-	output, err := exec.CommandContext(
-		ctx,
-		s.execFile("wg"),
-		strings.Fields(fmt.Sprintf("show %s transfer", iface))...,
-	).Output()
+	// Build and log the command being executed
+	wgCmd := s.execFile("wg")
+	args := []string{"show", iface, "transfer"}
+	log.Printf("Fetching peer statistics using command: %s %v", wgCmd, args)
+
+	// Execute the command
+	cmd := exec.CommandContext(ctx, wgCmd, args...)
+
+	// Capture all output for debugging
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	err = cmd.Run()
 	if err != nil {
-		return nil, fmt.Errorf("failed to run command: %w", err)
+		errOutput := stderr.String()
+		log.Printf("Failed to fetch peer statistics. Error: %v, Stderr: %s, Stdout: %s",
+			err, errOutput, stdout.String())
+
+		return nil, fmt.Errorf("failed to run command: %w\nCommand: %s %v\nStderr: %s\nStdout: %s",
+			err, wgCmd, args, errOutput, stdout.String())
 	}
 
-	// Split the command output into lines and process each line.
-	lines := strings.Split(string(output), "\n")
+	// Parse the output
+	output := stdout.String()
+	log.Printf("Raw peer statistics output:\n%s", output)
+
+	lines := strings.Split(strings.TrimSpace(output), "\n")
+	items = make([]*types.PeerStatistic, 0, len(lines))
+
 	for _, line := range lines {
-		columns := strings.Split(line, "\t")
-		if len(columns) != 3 {
+		line = strings.TrimSpace(line)
+		if line == "" {
 			continue
 		}
 
-		// Parse upload traffic stats.
+		// Split the line into columns (public key, upload bytes, download bytes, last handshake)
+		columns := strings.Fields(line)
+		if len(columns) < 3 {
+			log.Printf("Skipping malformed line in peer statistics: %s", line)
+			continue
+		}
+
+		// Parse upload bytes
 		uploadBytes, err := strconv.ParseInt(columns[1], 10, 64)
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse upload bytes: %w", err)
+			log.Printf("Failed to parse upload bytes from '%s': %v", columns[1], err)
+			continue
 		}
 
-		// Parse download traffic stats.
+		// Parse download bytes
 		downloadBytes, err := strconv.ParseInt(columns[2], 10, 64)
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse download bytes: %w", err)
+			log.Printf("Failed to parse download bytes from '%s': %v", columns[2], err)
+			continue
 		}
 
-		// Append peer statistics to the result collection.
-		items = append(
-			items,
-			&types.PeerStatistic{
-				Key:           columns[0],
-				DownloadBytes: downloadBytes,
-				UploadBytes:   uploadBytes,
-			},
-		)
+		// Create and append the peer statistic
+		items = append(items, &types.PeerStatistic{
+			Key:           columns[0],
+			DownloadBytes: downloadBytes,
+			UploadBytes:   uploadBytes,
+		})
 	}
 
-	// Return the constructed collection of peer statistics.
+	log.Printf("Successfully processed %d peer statistics", len(items))
 	return items, nil
 }
