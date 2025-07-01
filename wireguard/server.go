@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"os/exec"
 	"path/filepath"
 	"strconv"
@@ -66,27 +67,42 @@ func (s *Server) IsUp(ctx context.Context) (bool, error) {
 		return false, fmt.Errorf("failed to get interface name: %w", err)
 	}
 
-	// Executes the 'wg show' command to check the interface status.
-	cmd := exec.CommandContext(
-		ctx,
-		s.execFile("wg"),
-		strings.Fields(fmt.Sprintf("show %s", iface))...,
-	)
+	// Build the command
+	wgCmd := s.execFile("wg")
+	args := strings.Fields(fmt.Sprintf("show %s", iface))
 
-	// Capture stderr output.
-	var stderr bytes.Buffer
+	log.Printf("Checking if WireGuard interface %s is up using command: %s %v", iface, wgCmd, args)
+
+	// Execute the command
+	cmd := exec.CommandContext(ctx, wgCmd, args...)
+
+	// Capture all output for debugging
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
-	// Run the command and handle errors.
-	if err := cmd.Run(); err != nil {
-		// Check if the error matches "No such device".
-		if strings.Contains(stderr.String(), "No such device") {
+	err = cmd.Run()
+	if err != nil {
+		errOutput := stderr.String()
+		log.Printf("WireGuard check command failed. Error: %v, Stderr: %s, Stdout: %s",
+			err, errOutput, stdout.String())
+
+		// Check for various "interface not found" or "not a WireGuard interface" messages
+		if strings.Contains(errOutput, "No such device") ||
+			strings.Contains(errOutput, "No such interface") ||
+			strings.Contains(errOutput, "not a WireGuard interface") ||
+			strings.Contains(errOutput, "Operation not permitted") ||
+			strings.Contains(errOutput, "No such file or directory") {
+			log.Printf("WireGuard interface %s is not up (not found/not configured)", iface)
 			return false, nil
 		}
 
-		return false, fmt.Errorf("failed to run command: %w", err)
+		// For other errors, include detailed information
+		return false, fmt.Errorf("failed to check WireGuard interface %s: %w\nCommand: %s %v\nStderr: %s\nStdout: %s",
+			iface, err, wgCmd, args, errOutput, stdout.String())
 	}
 
+	log.Printf("WireGuard interface %s is up and running", iface)
 	return true, nil
 }
 
