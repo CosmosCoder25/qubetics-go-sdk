@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
@@ -63,18 +64,25 @@ func (s *Server) Type() types.ServiceType {
 func (s *Server) IsUp(ctx context.Context) (bool, error) {
 	// Retrieves the interface name.
 	iface, err := s.interfaceName()
+	fmt.Println("Interface name--------->", iface)
 	if err != nil {
 		return false, fmt.Errorf("failed to get interface name: %w", err)
 	}
 
 	// Build the command
-	wgCmd := s.execFile("wg")
-	args := strings.Fields(fmt.Sprintf("show %s", iface))
+	wgCmd := "wg"
+	args := []string{"show", iface}
+	if os.Geteuid() != 0 { // If not running as root
+		args = append([]string{"wg"}, args...)
+		wgCmd = "sudo"
+	}
+	fmt.Println("Command--------->", wgCmd, args)
 
 	log.Printf("Checking if WireGuard interface %s is up using command: %s %v", iface, wgCmd, args)
 
 	// Execute the command
 	cmd := exec.CommandContext(ctx, wgCmd, args...)
+	fmt.Println("Command--------->", cmd)
 
 	// Capture all output for debugging
 	var stdout, stderr bytes.Buffer
@@ -257,14 +265,20 @@ func (s *Server) PeerStatistics(ctx context.Context) (items []*types.PeerStatist
 	if err != nil {
 		return nil, fmt.Errorf("failed to get interface name: %w", err)
 	}
+	fmt.Println("Interface name---------", iface)
 
 	// Build and log the command being executed
-	wgCmd := s.execFile("wg")
+	wgCmd := "wg"
 	args := []string{"show", iface, "transfer"}
+	if os.Geteuid() != 0 { // If not running as root
+		args = append([]string{"wg"}, args...)
+		wgCmd = "sudo"
+	}
 	log.Printf("Fetching peer statistics using command: %s %v", wgCmd, args)
 
 	// Execute the command
 	cmd := exec.CommandContext(ctx, wgCmd, args...)
+	fmt.Println("Command---------", cmd)
 
 	// Capture all output for debugging
 	var stdout, stderr bytes.Buffer
@@ -283,10 +297,13 @@ func (s *Server) PeerStatistics(ctx context.Context) (items []*types.PeerStatist
 
 	// Parse the output
 	output := stdout.String()
+	fmt.Println("Output---------", output)
 	log.Printf("Raw peer statistics output:\n%s", output)
 
 	lines := strings.Split(strings.TrimSpace(output), "\n")
 	items = make([]*types.PeerStatistic, 0, len(lines))
+	fmt.Println("Lines---------", lines)
+	fmt.Println("Items---------", items)
 
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
@@ -296,6 +313,7 @@ func (s *Server) PeerStatistics(ctx context.Context) (items []*types.PeerStatist
 
 		// Split the line into columns (public key, upload bytes, download bytes, last handshake)
 		columns := strings.Fields(line)
+		fmt.Println("Columns---------", columns)
 		if len(columns) < 3 {
 			log.Printf("Skipping malformed line in peer statistics: %s", line)
 			continue
@@ -303,6 +321,7 @@ func (s *Server) PeerStatistics(ctx context.Context) (items []*types.PeerStatist
 
 		// Parse upload bytes
 		uploadBytes, err := strconv.ParseInt(columns[1], 10, 64)
+		fmt.Println("Upload bytes---------", uploadBytes)
 		if err != nil {
 			log.Printf("Failed to parse upload bytes from '%s': %v", columns[1], err)
 			continue
@@ -321,6 +340,7 @@ func (s *Server) PeerStatistics(ctx context.Context) (items []*types.PeerStatist
 			DownloadBytes: downloadBytes,
 			UploadBytes:   uploadBytes,
 		})
+		fmt.Println("Items---------", items)
 	}
 
 	log.Printf("Successfully processed %d peer statistics", len(items))
