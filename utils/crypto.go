@@ -11,6 +11,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/crypto/types"
+	"github.com/qubetics/qubetics-blockchain/v2/crypto/ethsecp256k1"
+
 )
 
 // EncodePubKey encodes a public key to a base64-formatted string with its type.
@@ -44,6 +46,8 @@ func DecodePubKey(s string) (types.PubKey, error) {
 		return decodeEd25519Key(key)
 	case "secp256k1":
 		return decodeSecp256k1Key(key)
+	case "ethsecp256k1":
+		return decodeEthSecp256k1Key(key)
 	default:
 		return nil, errors.New("unsupported public key type")
 	}
@@ -61,10 +65,18 @@ func decodeEd25519Key(keyBytes []byte) (types.PubKey, error) {
 // decodeSecp256k1Key validates and decodes a Secp256k1 public key.
 func decodeSecp256k1Key(keyBytes []byte) (types.PubKey, error) {
 	if len(keyBytes) != secp256k1.PubKeySize {
-		return nil, errors.New("invalid secp256k1 public key size")
+		return nil, fmt.Errorf("invalid secp256k1 public key length: %d", len(keyBytes))
+	}
+	return &secp256k1.PubKey{Key: keyBytes}, nil
+}
+
+// decodeEthSecp256k1Key validates and decodes an Ethereum-style secp256k1 public key.
+func decodeEthSecp256k1Key(keyBytes []byte) (types.PubKey, error) {
+	if len(keyBytes) != ethsecp256k1.PubKeySize {
+		return nil, fmt.Errorf("invalid ethsecp256k1 public key length: %d", len(keyBytes))
 	}
 
-	return &secp256k1.PubKey{Key: keyBytes}, nil
+	return &ethsecp256k1.PubKey{Key: keyBytes}, nil
 }
 
 // WritePEMFile writes a PEM-encoded block to the specified file path.
